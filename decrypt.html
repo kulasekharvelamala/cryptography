@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Decryption Lab • CryptoSteg</title>
+<style>
+  :root{
+    --neon:#00ff88;
+    --text:#e7f7ec;
+    --muted:#a7d3bc;
+    --glass:rgba(255,255,255,.06);
+    --stroke:rgba(255,255,255,.16);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%; font-family: ui-monospace, monospace; color:var(--text); background:black;}
+
+  /* Matrix background */
+  #matrix{position:fixed; inset:0; z-index:0}
+
+  /* Page layout */
+  .page{
+    position:relative; z-index:1; min-height:100vh;
+    display:grid; place-items:center;
+    padding:20px;
+  }
+
+  .panel{
+    width:min(600px, 96vw); padding:24px;
+    background:var(--glass); border:1px solid var(--stroke); border-radius:16px;
+    backdrop-filter: blur(10px);
+    box-shadow:0 30px 80px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+
+  h1{color:var(--neon); text-align:center; margin-bottom:20px;}
+
+  input[type="file"], input[type="password"]{
+    width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid rgba(0,255,136,.35); background:rgba(0,0,0,.6); color:var(--text);
+  }
+
+  .btn{
+    display:inline-block; padding:12px 16px; border-radius:12px; border:1px solid rgba(0,255,136,.35);
+    background:linear-gradient(90deg, rgba(0,255,136,.25), rgba(0,212,255,.2)); color:var(--text); font-weight:900; cursor:pointer;
+    margin-top:10px; width:100%; text-align:center;
+    transition:.15s transform, .15s box-shadow;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,255,136,.25); }
+
+  .result{
+    margin-top:16px; padding:16px; background:rgba(0,0,0,.2); border-radius:12px;
+    min-height:140px; white-space:pre-wrap; word-wrap:break-word; font-size:.95rem;
+  }
+
+  footer{
+    position:fixed; bottom:0; width:100%; text-align:center; padding:8px;
+    color:var(--muted); font-size:.85rem; background:linear-gradient(to top, rgba(0,0,0,.7), rgba(0,0,0,.25));
+    border-top:1px solid var(--stroke);
+  }
+
+  /* subtle grid overlay */
+  .grid-overlay{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(0,255,136,.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,.12) 1px, transparent 1px);
+    background-size: 60px 60px, 60px 60px;
+    mask-image: radial-gradient(80% 65% at 50% 45%, black, transparent 70%);
+  }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+<div class="grid-overlay"></div>
+
+<main class="page">
+  <div class="panel">
+    <h1>CryptoSteg • Decryption Lab</h1>
+    <label>Select a .cstg file:</label>
+    <input type="file" id="cstgFile" accept=".cstg" />
+
+    <label>Enter secret key:</label>
+    <input type="password" id="secretKey" placeholder="Enter your passphrase" />
+
+    <button class="btn" id="decryptBtn">Decrypt & Reveal</button>
+
+    <div class="result" id="resultBox"><em>Decrypted message will appear here.</em></div>
+  </div>
+</main>
+
+<footer>© 2025 CryptoSteg. AES-GCM decryption in browser.</footer>
+
+<script>
+/* ===========================
+   Matrix background
+   =========================== */
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+function resizeCanvas(){
+  canvas.width = innerWidth; canvas.height = innerHeight;
+}
+resizeCanvas(); addEventListener('resize', resizeCanvas);
+
+const letters = '01';
+let fontSize = 14;
+let columns = Math.floor(canvas.width / fontSize);
+let drops = Array(columns).fill(1);
+
+function draw(){
+  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00ff88';
+  ctx.font = fontSize + 'px monospace';
+  for(let i=0;i<drops.length;i++){
+    const txt = letters.charAt(Math.floor(Math.random()*letters.length));
+    ctx.fillText(txt, i*fontSize, drops[i]*fontSize);
+    if(drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(draw, 33);
+
+/* ===========================
+   Crypto helpers
+   =========================== */
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+
+function b64ToBuf(b64){
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+async function deriveAesKey(passphrase, salt){
+  const baseKey = await crypto.subtle.importKey('raw', textEncoder.encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:250000, hash:'SHA-256'}, baseKey, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+}
+
+async function decryptString(cipherB64, passphrase){
+  const full = new Uint8Array(b64ToBuf(cipherB64));
+  const magic = textDecoder.decode(full.slice(0,3));
+  if(magic !== 'CS1') throw new Error('Invalid file format.');
+
+  const salt = full.slice(3,19);
+  const iv   = full.slice(19,31);
+  const cipher = full.slice(31);
+
+  const key = await deriveAesKey(passphrase, salt);
+  const decryptedBuf = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, cipher);
+  return textDecoder.decode(decryptedBuf);
+}
+
+document.getElementById('decryptBtn').addEventListener('click', async ()=>{
+  const file = document.getElementById('cstgFile').files[0];
+  const pass = document.getElementById('secretKey').value;
+  const resultBox = document.getElementById('resultBox');
+
+  if(!file){ alert('Please select a .cstg file.'); return; }
+  if(!pass){ alert('Please enter the secret key.'); return; }
+
+  try {
+    const fileText = await file.text();
+    const container = JSON.parse(fileText);
+    const cipherB64 = container.payload.cipher_b64;
+
+    const decrypted = await decryptString(cipherB64, pass);
+    resultBox.textContent = decrypted;
+  } catch(err){
+    console.error(err);
+    resultBox.textContent = '❌ Decryption failed. Check the file and key.';
+  }
+});
+</script>
+
+</body>
+</html>

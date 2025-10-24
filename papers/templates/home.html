@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Welcome - OTP Authentication System</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 1000px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 30px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: slideUp 0.8s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .hero-section {
+    padding: 60px 40px;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .hero-section h1 {
+    font-size: 3em;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .hero-section p {
+    font-size: 1.3em;
+    margin-bottom: 10px;
+    opacity: 0.95;
+  }
+
+  .features-section {
+    padding: 50px 40px;
+    background: white;
+  }
+
+  .features-title {
+    text-align: center;
+    font-size: 2em;
+    color: #333;
+    margin-bottom: 40px;
+    font-weight: 600;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+  }
+
+  .feature-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .feature-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+  }
+
+  .feature-card h3 {
+    color: #333;
+    font-size: 1.4em;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .feature-card p {
+    color: #555;
+    font-size: 1em;
+    line-height: 1.6;
+  }
+
+  .cta-section {
+    padding: 50px 40px;
+    background: linear-gradient(135deg, #89f7fe, #66a6ff);
+    text-align: center;
+  }
+
+  .cta-section h2 {
+    font-size: 2.2em;
+    color: white;
+    margin-bottom: 30px;
+    font-weight: 700;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 18px 50px;
+    font-size: 1.2em;
+    font-weight: 600;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-register {
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+    color: white;
+  }
+
+  .btn-register:hover {
+    background: linear-gradient(135deg, #e03e1b, #d0144f);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(255, 75, 43, 0.4);
+  }
+
+  .btn-login {
+    background: white;
+    color: #667eea;
+    border: 3px solid #667eea;
+  }
+
+  .btn-login:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  .info-section {
+    padding: 40px;
+    background: #f8f9fa;
+    text-align: center;
+  }
+
+  .info-section h3 {
+    font-size: 1.8em;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  .info-section p {
+    font-size: 1.1em;
+    color: #666;
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    .hero-section h1 {
+      font-size: 2em;
+    }
+
+    .hero-section p {
+      font-size: 1.1em;
+    }
+
+    .features-title {
+      font-size: 1.6em;
+    }
+
+    .cta-section h2 {
+      font-size: 1.8em;
+    }
+
+    .btn {
+      padding: 15px 40px;
+      font-size: 1.1em;
+    }
+
+    .button-group {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="hero-section">
+    <h1>🔐 Secure Authentication System</h1>
+    <p>Two-Factor Authentication with OTP Verification</p>
+    <p style="font-size: 1em; opacity: 0.9;">Fast, Secure, and Easy to Use</p>
+  </div>
+
+  <div class="features-section">
+    <h2 class="features-title">Why Choose Us?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Secure</h3>
+        <p>End-to-end encrypted authentication with industry-standard security protocols</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>OTP Verification</h3>
+        <p>Two-factor authentication ensures your account stays protected</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Fast & Easy</h3>
+        <p>Quick registration and seamless login experience in seconds</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>Beautiful UI</h3>
+        <p>Modern, responsive design that works on all devices</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <h2>Get Started Today!</h2>
+    <div class="button-group">
+      <a href="http://127.0.0.1:5000/register" class="btn btn-register">Create Account</a>
+      <a href="http://127.0.0.1:5000/login" class="btn btn-login">Sign In</a>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <h3>How It Works</h3>
+    <p>
+      Create your account with basic information, verify your phone number with OTP, 
+      and enjoy secure access to your dashboard. Our two-factor authentication ensures 
+      that only you can access your account, keeping your data safe and secure.
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

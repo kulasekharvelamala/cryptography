@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Encryption Lab • CryptoSteg</title>
+<style>
+  :root{
+    --neon:#00ff88;
+    --neon2:#00ffaa;
+    --grid:#00ff8844;
+    --glass:rgba(255,255,255,.06);
+    --stroke:rgba(255,255,255,.16);
+    --text:#e7f7ec;
+    --muted:#a7d3bc;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    color:var(--text); background:black;
+    overflow:hidden; /* Prevent scrollbars for background */
+  }
+
+  /* Matrix background */
+  #matrix{position:fixed; inset:0; z-index:0}
+
+  /* Full-page layout */
+  .page{
+    position:relative;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+  }
+
+  /* Content container for main content */
+  .content{
+    max-width: 980px;
+    width: 96vw;
+    display: grid;
+    gap: 18px;
+    padding: 20px;
+    background: rgba(0,0,0,.45);
+    border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.04);
+  }
+
+  /* Header styles */
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; border-bottom:1px solid var(--stroke);
+    background:linear-gradient(to bottom, rgba(0,0,0,.7), rgba(0,0,0,.35));
+    backdrop-filter: blur(6px);
+  }
+  .brand{
+    font-weight:900; letter-spacing:.08em;
+    background: linear-gradient(90deg, #00ff88, #00d4ff);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  }
+
+  /* Sections inside content */
+  .section-title{
+    font-weight:800; font-size:1.05rem; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--muted);
+    border-left:3px solid var(--neon); padding-left:10px; margin-bottom:8px;
+  }
+  .step{ margin-top:12px; padding:14px; border:1px solid var(--stroke);
+         border-radius:12px; background:var(--glass) }
+  .step h3{ margin-bottom:8px; font-size:1rem }
+  .hint{ color:var(--muted); font-size:.9rem; margin-top:6px }
+
+  textarea, input[type="password"], input[type="file"], select{
+    width:100%; padding:12px 12px; border-radius:10px;
+    background:rgba(0,0,0,.6); border:1px solid rgba(0,255,136,.35);
+    color:var(--text); outline:none; font-size:.98rem;
+  }
+  textarea{ min-height:140px; resize:vertical }
+
+  .options{
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:8px
+  }
+  .chip{
+    position:relative; display:inline-flex; align-items:center; gap:8px;
+    padding:10px 12px; border-radius:12px; cursor:pointer; user-select:none;
+    border:1px solid rgba(0,255,136,.35); background:rgba(0,0,0,.55);
+    transition:.15s transform, .15s box-shadow, .15s border-color;
+  }
+  .chip:hover{ transform:translateY(-1px); border-color:var(--neon) }
+  .chip input{ appearance:none; width:18px; height:18px; border-radius:6px;
+               border:2px solid var(--neon); display:inline-block; position:relative }
+  .chip input:checked{ background:var(--neon) }
+  .chip span{ font-weight:700; letter-spacing:.02em }
+
+  .actions{
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:12px
+  }
+  .btn{
+    appearance:none; border:1px solid rgba(0,255,136,.35); color:var(--text);
+    background:linear-gradient(90deg, rgba(0,255,136,.25), rgba(0,212,255,.2));
+    padding:12px 16px; border-radius:12px; font-weight:900; letter-spacing:.04em;
+    cursor:pointer; transition:.15s transform, .15s box-shadow, .15s border-color;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,255,136,.25) }
+  .btn.primary{ border-color:var(--neon) }
+
+  /* Footer styles */
+  footer{
+    padding:10px; text-align:center; color:var(--muted); font-size:.85rem;
+    background:linear-gradient(to top, rgba(0,0,0,.7), rgba(0,0,0,.25));
+    border-top:1px solid var(--stroke);
+  }
+
+  /* subtle grid overlay */
+  .grid-overlay{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(0,255,136,.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,.12) 1px, transparent 1px);
+    background-size: 60px 60px, 60px 60px;
+    mask-image: radial-gradient(80% 65% at 50% 45%, black, transparent 70%);
+  }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+<div class="grid-overlay"></div>
+
+<main class="page">
+  <nav class="nav">
+    <div class="brand">CryptoSteg • Encryption Lab</div>
+    <div>Secure • Hide • Reveal</div>
+  </nav>
+
+  <section class="wrap">
+    <div class="content">
+      <div class="section-title">Steps</div>
+
+      <div class="step" id="step1">
+        <h3>1) Enter the secret text</h3>
+        <textarea id="secretText" placeholder="Type the message you want to protect..."></textarea>
+        <div class="hint">This text will be encrypted and packaged with your chosen carrier file.</div>
+      </div>
+
+      <div class="step" id="step2">
+        <h3>2) Choose the carrier & upload it</h3>
+        <div class="options" id="carrierOptions">
+          <label class="chip"><input type="radio" name="carrier" value="image" checked><span>Image</span></label>
+          <label class="chip"><input type="radio" name="carrier" value="audio"><span>Audio</span></label>
+          <label class="chip"><input type="radio" name="carrier" value="video"><span>Video</span></label>
+        </div>
+        <div style="margin-top:10px">
+          <input id="carrierFile" type="file" accept="image/*" />
+        </div>
+        <div class="hint">Pick a PNG/JPG for images, MP3/WAV for audio, or MP4/MOV for video.</div>
+      </div>
+
+      <div class="step" id="step3">
+        <h3>3) Enter secret key</h3>
+        <input id="secretKey" type="password" placeholder="Enter a strong passphrase" />
+        <div class="actions">
+          <button class="btn primary" id="encryptBtn">Encrypt &amp; Download</button>
+          <button class="btn" id="clearBtn" type="button">Clear</button>
+        </div>
+        <div class="hint">Uses AES-256-GCM with PBKDF2 key derivation (salted & randomized IV).</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>© 2025 CryptoSteg. AES-GCM in the browser via Web Crypto. This builds a portable <code>.cstg</code> container (for later decryption).</footer>
+</main>
+
+<script>
+/* ===========================
+   Matrix background
+   =========================== */
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas(); 
+window.addEventListener('resize', resizeCanvas);
+
+const letters = '01';
+let fontSize = 14;
+let columns = Math.floor(canvas.width / fontSize);
+let drops = Array(columns).fill(1);
+
+function draw(){
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00ff88';
+  ctx.font = fontSize + 'px monospace';
+  for(let i=0;i<drops.length;i++){
+    const txt = letters.charAt(Math.floor(Math.random()*letters.length));
+    ctx.fillText(txt, i*fontSize, drops[i]*fontSize);
+    if(drops[i]*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(draw, 33);
+
+/* ===========================
+   UI behavior
+   =========================== */
+const carrierFile = document.getElementById('carrierFile');
+const carrierOptions = document.getElementById('carrierOptions');
+carrierOptions.addEventListener('change', () => {
+  const type = getCarrierType();
+  const accept = type === 'image' ? 'image/*' : (type === 'audio' ? 'audio/*' : 'video/*');
+  carrierFile.value = '';
+  carrierFile.setAttribute('accept', accept);
+});
+function getCarrierType(){
+  return document.querySelector('input[name="carrier"]:checked').value;
+}
+
+/* ===========================
+   Crypto helpers (Web Crypto)
+   AES-256-GCM + PBKDF2
+   =========================== */
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+
+function bufToB64(buf){
+  const bytes = new Uint8Array(buf);
+  let binary = '';
+  for (let i=0;i<bytes.byteLength;i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+function b64ToBuf(b64){
+  const binary = atob(b64);
+  const len = binary.length;
+  const bytes = new Uint8Array(len);
+  for(let i=0;i<len;i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+async function deriveAesKey(passphrase, salt){
+  const baseKey = await crypto.subtle.importKey(
+    'raw', textEncoder.encode(passphrase), 'PBKDF2', false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt, iterations:250000, hash:'SHA-256' },
+    baseKey,
+    { name:'AES-GCM', length:256 },
+    false,
+    ['encrypt','decrypt']
+  );
+}
+
+async function encryptString(plain, passphrase){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const key  = await deriveAesKey(passphrase, salt);
+  const cipherBuf = await crypto.subtle.encrypt(
+    { name:'AES-GCM', iv },
+    key,
+    textEncoder.encode(plain)
+  );
+  // Package: magic | salt | iv | cipher
+  const magic = textEncoder.encode('CS1'); // 3 bytes
+  const full = new Uint8Array(magic.length + salt.length + iv.length + cipherBuf.byteLength);
+  let off = 0;
+  full.set(magic, off); off += magic.length;
+  full.set(salt, off);  off += salt.length;
+  full.set(iv, off);    off += iv.length;
+  full.set(new Uint8Array(cipherBuf), off);
+  return bufToB64(full.buffer);
+}
+
+/* ===========================
+   Main action
+   =========================== */
+const resultBox = document.getElementById('resultBox');
+const downloadActions = document.getElementById('downloadActions');
+const downloadFileLink = document.getElementById('downloadFile');
+const copySummaryBtn = document.getElementById('copySummary');
+
+document.getElementById('encryptBtn').addEventListener('click', async ()=>{
+  const message = document.getElementById('secretText').value.trim();
+  const pass    = document.getElementById('secretKey').value;
+  const file    = carrierFile.files[0];
+  const type    = getCarrierType();
+
+  if(!message){ alert('Please enter the secret text.'); return; }
+  if(!file){ alert('Please select a carrier file.'); return; }
+  if(!pass){ alert('Please enter a secret key.'); return; }
+
+  // Read carrier as base64
+  const carrierB64 = await new Promise((resolve, reject)=>{
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+
+  // Encrypt message
+  let cipherB64;
+  try {
+    cipherB64 = await encryptString(message, pass);
+  } catch(err){
+    console.error(err);
+    alert('Encryption failed.');
+    return;
+  }
+
+  // Create .cstg container
+  const container = {
+    version: 1,
+    tool: 'CryptoSteg',
+    createdAt: new Date().toISOString(),
+    carrier: {
+      type,
+      name: file.name,
+      mime: file.type || null,
+      data_b64: carrierB64
+    },
+    payload: {
+      kind: 'text',
+      cipher_b64: cipherB64,
+      algo: 'AES-256-GCM',
+      kdf: 'PBKDF2-SHA256-250k'
+    }
+  };
+  const containerStr = JSON.stringify(container);
+  const blob = new Blob([containerStr], {type:'application/octet-stream'});
+  const fnSafe = (file.name || 'carrier').replace(/\.[^\.]+$/,'');
+  const outName = `${fnSafe}.cstg`;
+
+  // Set download link
+  const url = URL.createObjectURL(blob);
+  downloadFileLink.href = url;
+  downloadFileLink.download = outName;
+
+  // Show summary
+  const summary =
+`✔ Encryption complete
+
+Carrier:
+  • Type:   ${type}
+  • Name:   ${file.name}
+  • Size:   ${file.size.toLocaleString()} bytes
+  • MIME:   ${file.type || 'unknown'}
+
+Payload:
+  • Kind:   text
+  • Algo:   AES-256-GCM
+  • KDF:    PBKDF2-SHA256 (250,000 iters)
+
+Output:
+  • File:   ${outName}
+  • Format: .cstg portable container
+`;
+  animateOutput(summary);
+  document.getElementById('downloadActions').style.display = 'flex';
+
+  // Revoke URL after click
+  downloadFileLink.addEventListener('click', () => {
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }, {once:true});
+});
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  document.getElementById('secretText').value = '';
+  document.getElementById('secretKey').value = '';
+  carrierFile.value = '';
+  document.getElementById('downloadActions').style.display = 'none';
+  document.getElementById('resultBox').innerHTML = '<em>Result cleared. Ready for a new encryption.</em>';
+});
+
+document.getElementById('copySummary').addEventListener('click', async ()=>{
+  const text = document.getElementById('resultBox').innerText;
+  try {
+    await navigator.clipboard.writeText(text);
+    document.getElementById('copySummary').textContent = 'Copied!';
+    setTimeout(()=>{ document.getElementById('copySummary').textContent='Copy Summary'; }, 1200);
+  } catch(e){
+    alert('Copy failed.');
+  }
+});
+
+/* ===========================
+   Scramble/Reveal animation
+   =========================== */
+function animateOutput(finalText){
+  const resultBox = document.getElementById('resultBox');
+  resultBox.textContent = '';
+  let i=0;
+  const chars = finalText.split('');
+  const timer = setInterval(()=>{
+    resultBox.textContent = chars
+      .map((ch, idx) => idx < i ? ch : String.fromCharCode(33 + Math.floor(Math.random()*90)))
+      .join('');
+    if(++i > chars.length){ clearInterval(timer); }
+  }, 12);
+}
+</script>
+</body>
+</html>

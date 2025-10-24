@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoSteg • Encryption Lab</title>
+<style>
+  body { background: #000; color: #e7f7ec; font-family: monospace; margin:0; padding:0; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+  h1 { margin:20px; }
+  .container { max-width:800px; width:95%; background: rgba(0,0,0,.7); padding:20px; border-radius:12px; margin-bottom:20px; }
+  textarea, input[type=password], input[type=file], select { width:100%; margin:6px 0; padding:10px; border-radius:8px; background:rgba(0,0,0,.6); color:#e7f7ec; border:1px solid #00ff88; font-family: monospace; }
+  button { margin:6px 0; padding:10px 16px; border-radius:10px; border:none; cursor:pointer; background:#00ff88; color:#000; font-weight:bold; }
+  .hint { font-size:0.85rem; color:#a7d3bc; margin-bottom:10px; }
+  label { display:inline-flex; align-items:center; margin-right:10px; cursor:pointer; }
+  input[type=radio] { margin-right:6px; }
+</style>
+</head>
+<body>
+
+<h1>CryptoSteg • Encryption Lab</h1>
+
+<div class="container">
+  <h3>1) Enter Secret Text</h3>
+  <textarea id="secretText" placeholder="Type your message here..."></textarea>
+
+  <h3>2) Choose Carrier & Upload File</h3>
+  <div>
+    <label><input type="radio" name="carrier" value="image" checked> Image</label>
+    <label><input type="radio" name="carrier" value="audio"> Audio</label>
+    <label><input type="radio" name="carrier" value="video"> Video</label>
+  </div>
+  <input type="file" id="carrierFile">
+
+  <h3>3) Enter Secret Key</h3>
+  <input type="password" id="secretKey" placeholder="Enter passphrase">
+
+  <div class="hint">AES-256-GCM encryption with PBKDF2-SHA256 key derivation (250k iterations)</div>
+
+  <button id="encryptBtn">Encrypt & Save .cstg</button>
+  <button id="extractBtn">Extract & Decrypt .cstg</button>
+  <input type="file" id="cstgFile" style="margin-top:10px;">
+</div>
+
+<script>
+async function encryptContainer() {
+  const message = document.getElementById('secretText').value.trim();
+  const pass = document.getElementById('secretKey').value;
+  const file = document.getElementById('carrierFile').files[0];
+  const type = document.querySelector('input[name="carrier"]:checked').value;
+
+  if(!message){ alert('Enter a secret message'); return; }
+  if(!file){ alert('Select a carrier file'); return; }
+  if(!pass){ alert('Enter a secret key'); return; }
+
+  const outName = prompt("Enter a name for the .cstg file (without extension):", (file.name || "stego").replace(/\.[^\.]+$/, ""));
+  if(!outName) return;
+
+  const carrierB64 = await new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  // Send to backend
+  const formData = new FormData();
+  formData.append('message', message);
+  formData.append('passphrase', pass);
+  formData.append('carrier_type', type);
+  formData.append('carrier_file', file);
+
+  fetch('/api/create-container', { method:'POST', body:formData })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.success){
+        // Auto-download the .cstg
+        fetch('/api/download-cstg', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({container:data.container, filename: outName+".cstg"})
+        })
+        .then(res=>res.blob())
+        .then(blob=>{
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = outName+".cstg"; document.body.appendChild(a); a.click(); a.remove();
+        });
+        alert("Encryption & container creation successful!");
+      } else {
+        alert("Error: "+data.error);
+      }
+    }).catch(e=>alert("Failed: "+e));
+}
+
+async function extractContainer() {
+  const pass = document.getElementById('secretKey').value;
+  const cstg = document.getElementById('cstgFile').files[0];
+
+  if(!pass){ alert('Enter secret key'); return; }
+  if(!cstg){ alert('Select a .cstg file'); return; }
+
+  const formData = new FormData();
+  formData.append('passphrase', pass);
+  formData.append('cstg_file', cstg);
+
+  fetch('/api/extract-container', { method:'POST', body:formData })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.success){
+        alert("Decrypted Message:\n\n"+data.message);
+      } else {
+        alert("Error: "+data.error);
+      }
+    }).catch(e=>alert("Failed: "+e));
+}
+
+document.getElementById('encryptBtn').addEventListener('click', encryptContainer);
+document.getElementById('extractBtn').addEventListener('click', extractContainer);
+</script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!-- templates/registrate.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Login & Register - OTP Based</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 flex items-center justify-center p-4">
+<div class="w-full max-w-md">
+<div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+<!-- Header -->
+<div class="bg-gradient-to-r from-purple-600 to-blue-600 p-8 text-white text-center">
+<h1 id="header-title" class="text-3xl font-bold mb-2">Welcome Back</h1>
+<p id="header-subtitle" class="text-purple-100">Login with OTP verification</p>
+</div>
+
+<!-- Form Container -->
+<div class="p-8">
+<!-- Message Display -->
+<div id="message-box" class="hidden mb-6 p-4 rounded-lg"></div>
+
+<!-- Username (Register only) -->
+<div id="username-field" class="mb-5 hidden">
+<label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+<div class="relative">
+<svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+</svg>
+<input type="text" id="username" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition" placeholder="Enter your username" />
+</div>
+</div>
+
+<!-- Email -->
+<div class="mb-5">
+<label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+<div class="relative">
+<svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+</svg>
+<input type="email" id="email" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition" placeholder="Enter your email" />
+</div>
+</div>
+
+<!-- Password -->
+<div class="mb-5">
+<label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+<div class="relative">
+<svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+</svg>
+<input type="password" id="password" class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition" placeholder="Enter your password" />
+<button type="button" id="toggle-password" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+<svg id="eye-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+</svg>
+</button>
+</div>
+</div>
+
+<!-- Confirm Password (Register only) -->
+<div id="confirm-password-field" class="mb-5 hidden">
+<label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+<div class="relative">
+<svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+</svg>
+<input type="password" id="confirm-password" class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition" placeholder="Confirm your password" />
+</div>
+</div>
+
+<!-- Submit Button -->
+<button id="submit-btn" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+Login with OTP
+</button>
+
+<!-- Toggle Link -->
+<div class="mt-6 text-center">
+<p class="text-gray-600">
+<span id="toggle-text">Don't have an account? </span>
+<button id="toggle-btn" class="text-purple-600 font-semibold hover:text-purple-700 transition">
+Sign Up
+</button>
+</p>
+</div>
+
+<!-- Info Box -->
+<div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+<p class="text-xs text-blue-800 text-center">
+<strong>🔐 OTP Verification:</strong><br />
+You will receive a 6-digit OTP code via email
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+let isLogin = true;
+
+// DOM Elements
+const headerTitle = document.getElementById('header-title');
+const headerSubtitle = document.getElementById('header-subtitle');
+const usernameField = document.getElementById('username-field');
+const confirmPasswordField = document.getElementById('confirm-password-field');
+const submitBtn = document.getElementById('submit-btn');
+const toggleBtn = document.getElementById('toggle-btn');
+const toggleText = document.getElementById('toggle-text');
+const messageBox = document.getElementById('message-box');
+const togglePasswordBtn = document.getElementById('toggle-password');
+const passwordInput = document.getElementById('password');
+
+// Toggle password visibility
+togglePasswordBtn.addEventListener('click', () => {
+const type = passwordInput.type === 'password' ? 'text' : 'password';
+passwordInput.type = type;
+document.getElementById('confirm-password').type = type;
+});
+
+// Toggle between login and register
+toggleBtn.addEventListener('click', () => {
+isLogin = !isLogin;
+
+if (isLogin) {
+headerTitle.textContent = 'Welcome Back';
+headerSubtitle.textContent = 'Login with OTP verification';
+usernameField.classList.add('hidden');
+confirmPasswordField.classList.add('hidden');
+submitBtn.textContent = 'Login with OTP';
+toggleText.textContent = "Don't have an account? ";
+toggleBtn.textContent = 'Sign Up';
+} else {
+headerTitle.textContent = 'Create Account';
+headerSubtitle.textContent = 'Sign up with OTP verification';
+usernameField.classList.remove('hidden');
+confirmPasswordField.classList.remove('hidden');
+submitBtn.textContent = 'Register with OTP';
+toggleText.textContent = 'Already have an account? ';
+toggleBtn.textContent = 'Login';
+}
+
+clearForm();
+hideMessage();
+});
+
+// Submit form
+submitBtn.addEventListener('click', async () => {
+if (isLogin) {
+await handleLogin();
+} else {
+await handleRegister();
+}
+});
+
+// Handle Login
+async function handleLogin() {
+const email = document.getElementById('email').value.trim();
+const password = document.getElementById('password').value;
+
+if (!email || !password) {
+showMessage('Email and password are required', 'error');
+return;
+}
+
+submitBtn.disabled = true;
+submitBtn.textContent = 'Sending OTP...';
+
+try {
+const response = await fetch('/api/login', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ email, password })
+});
+
+const data = await response.json();
+
+if (data.success) {
+showMessage(data.message, 'success');
+setTimeout(() => {
+window.location.href = '/verify-otp';
+}, 1000);
+} else {
+showMessage(data.message, 'error');
+submitBtn.disabled = false;
+submitBtn.textContent = 'Login with OTP';
+}
+} catch (error) {
+showMessage('Connection error. Please try again.', 'error');
+submitBtn.disabled = false;
+submitBtn.textContent = 'Login with OTP';
+}
+}
+
+// Handle Register
+async function handleRegister() {
+const username = document.getElementById('username').value.trim();
+const email = document.getElementById('email').value.trim();
+const password = document.getElementById('password').value;
+const confirmPassword = document.getElementById('confirm-password').value;
+
+submitBtn.disabled = true;
+submitBtn.textContent = 'Sending OTP...';
+
+try {
+const response = await fetch('/api/register', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ username, email, password, confirmPassword })
+});
+
+const data = await response.json();
+
+if (data.success) {
+showMessage(data.message, 'success');
+setTimeout(() => {
+window.location.href = '/verify-otp';
+}, 1000);
+} else {
+showMessage(data.message, 'error');
+submitBtn.disabled = false;
+submitBtn.textContent = 'Register with OTP';
+}
+} catch (error) {
+showMessage('Connection error. Please try again.', 'error');
+submitBtn.disabled = false;
+submitBtn.textContent = 'Register with OTP';
+}
+}
+
+// Show message
+function showMessage(text, type) {
+messageBox.textContent = text;
+messageBox.className = `mb-6 p-4 rounded-lg ${
+type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
+}`;
+messageBox.classList.remove('hidden');
+}
+
+// Hide message
+function hideMessage() {
+messageBox.classList.add('hidden');
+}
+
+// Clear form
+function clearForm() {
+document.getElementById('username').value = '';
+document.getElementById('email').value = '';
+document.getElementById('password').value = '';
+document.getElementById('confirm-password').value = '';
+}
+
+// Enter key submit
+document.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') {
+submitBtn.click();
+}
+});
+</script>
+</body>
+</html>

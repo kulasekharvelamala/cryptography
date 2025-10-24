@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Enter OTP</title>
+</head>
+<body>
+    <h2>Enter OTP</h2>
+    <input type="text" id="otp" maxlength="6" placeholder="Enter OTP">
+    <button onclick="verifyOTP()">Verify</button>
+
+    <script>
+        async function verifyOTP() {
+            const otp = document.getElementById('otp').value;
+            const response = await fetch('/api/verify-registration-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ otp })
+            });
+            const data = await response.json();
+            alert(data.message);
+            if (data.success) window.location.href = data.redirectUrl;
+        }
+    </script>
+</body>
+</html>

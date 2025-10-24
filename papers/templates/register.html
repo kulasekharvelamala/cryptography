@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create Your Account</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+
+  .container {
+    background: rgba(255,255,255,0.98);
+    padding: 40px 35px;
+    border-radius: 25px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    max-width: 550px;
+    width: 100%;
+    position: relative;
+    animation: slideIn 0.5s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: transparent;
+    border: none;
+    font-size: 1.5em;
+    color: #667eea;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    text-decoration: none;
+  }
+
+  .back-btn:hover {
+    transform: translateX(-5px);
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 2.3em;
+    margin-bottom: 10px;
+    color: #333;
+    font-weight: 700;
+  }
+
+  p.subtitle {
+    text-align: center;
+    font-size: 1em;
+    margin-bottom: 30px;
+    color: #666;
+  }
+
+  .step {
+    display: none;
+  }
+
+  .step.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-group {
+    position: relative;
+    margin-bottom: 25px;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 15px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1em;
+    background: #fff;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .form-group input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.2);
+  }
+
+  .form-group label {
+    position: absolute;
+    top: 15px;
+    left: 18px;
+    background: #fff;
+    padding: 0 6px;
+    font-size: 0.95em;
+    color: #666;
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+
+  .form-group input:focus + label,
+  .form-group input:not(:placeholder-shown) + label {
+    top: -10px;
+    left: 14px;
+    font-size: 0.8em;
+    color: #667eea;
+    font-weight: 600;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    font-size: 1.15em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  .btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5568d3, #6a3f8f);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .otp-instruction {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+
+  .otp-inputs {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .otp-inputs input {
+    width: 55px !important;
+    height: 55px;
+    font-size: 1.8em;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fff;
+    outline: none;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    color: #333;
+    padding: 0 !important;
+  }
+
+  .otp-inputs input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+    transform: scale(1.05);
+  }
+
+  .resend-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: #667eea;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .resend-link:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+
+  .resend-link.disabled {
+    color: #999;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .login-link {
+    display: block;
+    margin-top: 25px;
+    text-align: center;
+    width: 100%;
+    font-size: 0.95em;
+    color: #666;
+  }
+
+  .login-link a {
+    color: #667eea;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .login-link a:hover {
+    color: #764ba2;
+    text-decoration: underline;
+  }
+
+  #toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 500px;
+    background: #4BB543;
+    color: white;
+    padding: 16px 22px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+    transition: all 0.4s ease;
+    z-index: 1000;
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  #loading {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+
+  #loading.show {
+    display: flex;
+  }
+
+  .loader {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #667eea;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @media(max-width: 600px){
+    .container {
+      padding: 35px 25px;
+    }
+    h2 {
+      font-size: 1.9em;
+    }
+    .otp-inputs input {
+      width: 48px !important;
+      height: 48px;
+      font-size: 1.6em;
+    }
+    #toast {
+      min-width: 250px;
+      right: 10px;
+      left: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loader"></div>
+</div>
+
+<div id="toast"></div>
+
+<div class="container">
+  <a href="/" class="back-btn">← </a>
+  
+  <h2>Create Account</h2>
+  <p class="subtitle">Join us today and get started!</p>
+  
+  <!-- Step 1: Registration Form -->
+  <div id="step1" class="step active">
+    <form id="register-form">
+      <div class="form-group">
+        <input type="text" id="username" placeholder=" " required autocomplete="off" />
+        <label for="username">Username</label>
+      </div>
+      
+      <div class="form-group">
+        <input type="date" id="dob" placeholder=" " required />
+        <label for="dob">Date of Birth</label>
+      </div>
+      
+      <div class="form-group">
+        <input type="email" id="email" placeholder=" " required autocomplete="email" />
+        <label for="email">Email Address</label>
+      </div>
+      
+      <div class="form-group">
+        <input type="tel" id="phone" placeholder=" " required autocomplete="tel" />
+        <label for="phone">Phone Number</label>
+      </div>
+      
+      <div class="form-group">
+        <input type="password" id="password" placeholder=" " required autocomplete="new-password" />
+        <label for="password">Password (min 6 characters)</label>
+      </div>
+      
+      <div class="form-group">
+        <input type="password" id="confirm_password" placeholder=" " required autocomplete="new-password" />
+        <label for="confirm_password">Confirm Password</label>
+      </div>
+      
+      <button type="submit" class="btn" id="send-otp-btn">Continue</button>
+    </form>
+  </div>
+
+  <!-- Step 2: OTP Verification -->
+  <div id="step2" class="step">
+    <div class="otp-instruction">📱 Enter the 6-digit OTP sent to your phone</div>
+    <div class="otp-inputs">
+      <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" />
+      <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" />
+      <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" />
+      <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" />
+      <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" />
+      <input type="text" maxlength="1" class="otp-input" pattern="[0-9]" inputmode="numeric" />
+    </div>
+    <button type="button" class="btn" id="verify-otp-btn">Verify & Create Account</button>
+    <div class="resend-link" id="resend-otp">Resend OTP</div>
+  </div>
+  
+  <div class="login-link">
+    Already have an account? <a href="/login">Login here</a>
+  </div>
+</div>
+
+<script>
+const step1 = document.getElementById('step1');
+const step2 = document.getElementById('step2');
+const registerForm = document.getElementById('register-form');
+const sendOtpBtn = document.getElementById('send-otp-btn');
+const verifyOtpBtn = document.getElementById('verify-otp-btn');
+const resendOtp = document.getElementById('resend-otp');
+const otpInputs = document.querySelectorAll('.otp-input');
+const toast = document.getElementById('toast');
+const loadingOverlay = document.getElementById('loading');
+
+// Store registration data temporarily
+let registrationData = {};
+let resendCooldown = false;
+
+function showToast(message, backgroundColor = '#4BB543') {
+  toast.textContent = message;
+  toast.style.backgroundColor = backgroundColor;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+function showLoading() {
+  loadingOverlay.classList.add('show');
+}
+
+function hideLoading() {
+  loadingOverlay.classList.remove('show');
+}
+
+function startResendCooldown() {
+  resendCooldown = true;
+  resendOtp.classList.add('disabled');
+  let countdown = 30;
+  const originalText = resendOtp.textContent;
+  
+  const interval = setInterval(() => {
+    resendOtp.textContent = `Resend OTP (${countdown}s)`;
+    countdown--;
+    
+    if (countdown < 0) {
+      clearInterval(interval);
+      resendOtp.textContent = originalText;
+      resendOtp.classList.remove('disabled');
+      resendCooldown = false;
+    }
+  }, 1000);
+}
+
+// Step 1: Send Registration OTP
+registerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const username = document.getElementById('username').value.trim();
+  const dob = document.getElementById('dob').value;
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirm_password').value;
+
+  // Validation
+  if (!username || !dob || !email || !phone || !password || !confirmPassword) {
+    showToast('⚠️ Please fill all fields', '#ef4444');
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    showToast('⚠️ Passwords do not match!', '#ef4444');
+    return;
+  }
+
+  if (password.length < 6) {
+    showToast('⚠️ Password must be at least 6 characters', '#ef4444');
+    return;
+  }
+
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showToast('⚠️ Please enter a valid email address', '#ef4444');
+    return;
+  }
+
+  // Phone validation (basic)
+  const phoneRegex = /^\+?[\d\s\-()]+$/;
+  if (!phoneRegex.test(phone) || phone.replace(/\D/g, '').length < 10) {
+    showToast('⚠️ Please enter a valid phone number', '#ef4444');
+    return;
+  }
+
+  // Store registration data for later use
+  registrationData = { username, email, phone, dob, password };
+
+  sendOtpBtn.disabled = true;
+  sendOtpBtn.textContent = 'Sending OTP...';
+  showLoading();
+
+  try {
+    const response = await fetch('/api/send-registration-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, phone, dob, password })
+    });
+
+    const data = await response.json();
+    hideLoading();
+    sendOtpBtn.disabled = false;
+    sendOtpBtn.textContent = 'Continue';
+
+    if (data.success) {
+      showToast('✅ ' + data.message, '#4BB543');
+      step1.classList.remove('active');
+      step2.classList.add('active');
+      otpInputs[0].focus();
+      startResendCooldown();
+    } else {
+      showToast('❌ ' + data.message, '#ef4444');
+    }
+  } catch (error) {
+    hideLoading();
+    sendOtpBtn.disabled = false;
+    sendOtpBtn.textContent = 'Continue';
+    console.error('Registration error:', error);
+    showToast('❌ Network error. Please try again.', '#ef4444');
+  }
+});
+
+// OTP Input Handling
+otpInputs.forEach((input, index) => {
+  input.addEventListener('input', (e) => {
+    const value = e.target.value;
+    
+    // Only allow digits
+    if (!/^\d*$/.test(value)) {
+      e.target.value = '';
+      return;
+    }
+    
+    // Auto-focus next input
+    if (value.length === 1 && index < otpInputs.length - 1) {
+      otpInputs[index + 1].focus();
+    }
+  });
+  
+  input.addEventListener('keydown', (e) => {
+    // Handle backspace
+    if (e.key === 'Backspace' && input.value === '' && index > 0) {
+      otpInputs[index - 1].focus();
+    }
+  });
+
+  input.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').slice(0, 6);
+    
+    if (!/^\d+$/.test(pastedData)) {
+      showToast('⚠️ Please paste only numbers', '#ef4444');
+      return;
+    }
+    
+    pastedData.split('').forEach((char, i) => {
+      if (otpInputs[i]) otpInputs[i].value = char;
+    });
+    
+    otpInputs[Math.min(pastedData.length, 5)].focus();
+  });
+});
+
+// Step 2: Verify OTP
+verifyOtpBtn.addEventListener('click', async () => {
+  const otp = Array.from(otpInputs).map(i => i.value).join('');
+  
+  if (otp.length !== 6) {
+    showToast('⚠️ Please enter the complete 6-digit OTP', '#ef4444');
+    return;
+  }
+
+  if (!/^\d{6}$/.test(otp)) {
+    showToast('⚠️ OTP must contain only numbers', '#ef4444');
+    return;
+  }
+
+  verifyOtpBtn.disabled = true;
+  verifyOtpBtn.textContent = 'Verifying...';
+  showLoading();
+
+  try {
+    const response = await fetch('/api/verify-registration-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        otp,
+        phone: registrationData.phone
+      })
+    });
+
+    const data = await response.json();
+    hideLoading();
+    verifyOtpBtn.disabled = false;
+    verifyOtpBtn.textContent = 'Verify & Create Account';
+
+    if (data.success) {
+      showToast('🎉 ' + data.message, '#4BB543');
+      
+      // Clear stored data
+      registrationData = {};
+      
+      // Redirect to dashboard or login
+      setTimeout(() => {
+        window.location.href = data.redirectUrl || '/dashboard';
+      }, 1500);
+    } else {
+      showToast('❌ ' + data.message, '#ef4444');
+      otpInputs.forEach(i => i.value = '');
+      otpInputs[0].focus();
+    }
+  } catch (error) {
+    hideLoading();
+    verifyOtpBtn.disabled = false;
+    verifyOtpBtn.textContent = 'Verify & Create Account';
+    console.error('Verification error:', error);
+    showToast('❌ Network error. Please try again.', '#ef4444');
+  }
+});
+
+// Resend OTP
+resendOtp.addEventListener('click', async () => {
+  if (resendCooldown) {
+    return;
+  }
+
+  if (!registrationData.phone) {
+    showToast('❌ Registration data not found. Please start over.', '#ef4444');
+    step2.classList.remove('active');
+    step1.classList.add('active');
+    return;
+  }
+
+  showLoading();
+  
+  try {
+    const response = await fetch('/api/resend-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        purpose: 'registration',
+        phone: registrationData.phone,
+        email: registrationData.email
+      })
+    });
+
+    const data = await response.json();
+    hideLoading();
+
+    if (data.success) {
+      showToast('✅ ' + data.message, '#4BB543');
+      otpInputs.forEach(i => i.value = '');
+      otpInputs[0].focus();
+      startResendCooldown();
+    } else {
+      showToast('❌ ' + data.message, '#ef4444');
+    }
+  } catch (error) {
+    hideLoading();
+    console.error('Resend error:', error);
+    showToast('❌ Network error. Please try again.', '#ef4444');
+  }
+});
+</script>
+
+</body>
+</html>
